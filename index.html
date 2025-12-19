@@ -1,26 +1,96 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>DTX | 24h Key</title>
-    <style>
-        body { background: #0f0f0f; color: white; font-family: Arial; text-align: center; padding-top: 100px; }
-        button { padding: 15px 30px; font-size: 18px; cursor: pointer; border-radius: 10px; border: none; }
-        input { width: 80%; padding: 10px; font-size: 16px; margin-top: 20px; text-align: center; }
-    </style>
+<meta charset="UTF-8">
+<title>DTX | Script Hub Key Generator</title>
+<style>
+body {
+    background: #0f0f0f;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding-top: 80px;
+}
+h1 { font-size: 36px; margin-bottom: 10px; }
+p { font-size: 18px; margin-bottom: 30px; }
+button {
+    padding: 15px 30px;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 10px;
+    border: none;
+    background-color: #1e90ff;
+    color: white;
+    transition: 0.2s;
+}
+button:hover { background-color: #0f6fc0; }
+input {
+    width: 80%;
+    padding: 12px;
+    font-size: 16px;
+    margin-top: 20px;
+    text-align: center;
+    border-radius: 6px;
+    border: none;
+}
+#countdown {
+    margin-top: 20px;
+    font-size: 16px;
+    color: #ffcc00;
+}
+.container {
+    max-width: 500px;
+    margin: auto;
+}
+</style>
 </head>
 <body>
+<div class="container">
 <h1>DTX | Script Hub</h1>
-<p>Click on the Button to get your 24h Key</p>
-<button onclick="generateKey()">Key Generator</button>
+<p>Click the button to get your 24h Key for the Script Hub</p>
+<button onclick="generateKey()">Generate Key</button>
 <br><br>
-<input id="key" readonly placeholder="Your Key shows here">
+<input id="key" readonly placeholder="Your key will appear here">
+<button onclick="copyKey()">Copy Key</button>
+<div id="countdown"></div>
+</div>
+
 <script>
+let keyTimestamp = null;
+
+// Generate Key
 function generateKey() {
     const timestamp = Math.floor(Date.now() / 1000);
     const random = crypto.randomUUID();
     const key = `DTX_${timestamp}_${random}`;
     document.getElementById("key").value = key;
+    keyTimestamp = Date.now();
+    updateCountdown();
+}
+
+// Copy Key
+function copyKey() {
+    const keyInput = document.getElementById("key");
+    keyInput.select();
+    keyInput.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(keyInput.value);
+    alert("Key copied!");
+}
+
+// Countdown
+function updateCountdown() {
+    if (!keyTimestamp) return;
+    const now = Date.now();
+    const diff = 24*60*60*1000 - (now - keyTimestamp);
+    if (diff <= 0) {
+        document.getElementById("countdown").innerText = "Key expired! Generate a new key.";
+        return;
+    }
+    const hours = Math.floor(diff / (1000*60*60));
+    const minutes = Math.floor((diff % (1000*60*60)) / (1000*60));
+    const seconds = Math.floor((diff % (1000*60)) / 1000);
+    document.getElementById("countdown").innerText = `Key valid for: ${hours}h ${minutes}m ${seconds}s`;
+    setTimeout(updateCountdown, 1000);
 }
 </script>
 </body>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>DTX | 24h Key</title>
+    <style>
+        body { background: #0f0f0f; color: white; font-family: Arial; text-align: center; padding-top: 100px; }
+        button { padding: 15px 30px; font-size: 18px; cursor: pointer; border-radius: 10px; border: none; }
+        input { width: 80%; padding: 10px; font-size: 16px; margin-top: 20px; text-align: center; }
+    </style>
+</head>
+<body>
+<h1>DTX | Script Hub</h1>
+<p>Klicke auf den Button, um deinen 24h Key zu erhalten</p>
+<button onclick="generateKey()">Key generieren</button>
+<br><br>
+<input id="key" readonly placeholder="Dein Key erscheint hier">
+<script>
+function generateKey() {
+    const timestamp = Math.floor(Date.now() / 1000);
+    const random = crypto.randomUUID();
+    const key = `DTX_${timestamp}_${random}`;
+    document.getElementById("key").value = key;
+}
+</script>
+</body>
+</html>

@@ -58,7 +58,7 @@ input {
 <body>
 <div class="container">
 <h1>DTX | Script Hub</h1>
-<p>Click the button to get your 30-minute key for the Script Hub</p>
+<p>Click the button to get your 24h Key for the Script Hub</p>
 <button onclick="generateKey()">Generate Key</button>
 <br><br>
 <input id="key" readonly placeholder="Your key will appear here">
@@ -69,7 +69,7 @@ input {
 <div id="social" style="margin-top:30px;">
   <p>Follow us on social media:</p>
   <a href="https://discord.gg/xKMg3JsTTc" target="_blank" class="social-btn">Discord</a>
-  <a href="https://youtube.com/@dtxhub" target="_blank" class="social-btn">Youtube</a>
+  <a href="https://youtube.com/@dtxhub" target="_blank" class="social-btn">YouTube</a>
 </div>
 </div>
 
@@ -77,21 +77,21 @@ input {
 let keyTimestamp = null;
 
 function generateKey() {
-    const lastKeyTime = localStorage.getItem('lastKeyTime');
     const now = Date.now();
+    const lastKeyTime = localStorage.getItem('lastKeyTime');
 
-    // Prüfen, ob schon ein Key in dieser Sitzung generiert wurde
-    if (sessionStorage.getItem('keyGenerated')) {
-        alert("You have already generated a key during this visit!");
-        return;
-    }
-
-    // Prüfen, ob 30 Minuten vergangen sind
+    // Prüfen: 30 Minuten Limit
     if (lastKeyTime && now - lastKeyTime < 30*60*1000) {
         const remaining = 30*60*1000 - (now - lastKeyTime);
         const minutes = Math.floor(remaining / (1000*60));
         const seconds = Math.floor((remaining % (1000*60)) / 1000);
         alert(`You can generate a new key every 30 minutes.\nTime left: ${minutes}m ${seconds}s`);
+        return;
+    }
+
+    // Prüfen: bereits Key in dieser Sitzung generiert
+    if (sessionStorage.getItem('keyGenerated')) {
+        alert("You have already generated a key during this visit!");
         return;
     }
 
@@ -101,11 +101,11 @@ function generateKey() {
     const key = `DTX_${timestamp}_${random}`;
     document.getElementById("key").value = key;
 
-    // Timestamp speichern
+    // Timestamps speichern
+    keyTimestamp = now;
     localStorage.setItem('lastKeyTime', now);
     sessionStorage.setItem('keyGenerated', 'true');
 
-    keyTimestamp = now;
     updateCountdown();
 }
 
@@ -118,24 +118,29 @@ function copyKey() {
     alert("Key copied!");
 }
 
-// Countdown
+// Countdown für 24 Stunden
 function updateCountdown() {
-    const lastKeyTime = localStorage.getItem('lastKeyTime');
-    if (!lastKeyTime) return;
+    if (!keyTimestamp) return;
     const now = Date.now();
-    const diff = 30*60*1000 - (now - lastKeyTime);
+    const diff = 24*60*60*1000 - (now - keyTimestamp);
     if (diff <= 0) {
-        document.getElementById("countdown").innerText = "";
+        document.getElementById("countdown").innerText = "Key expired! Generate a new key.";
         return;
     }
-    const minutes = Math.floor(diff / (1000*60));
+    const hours = Math.floor(diff / (1000*60*60));
+    const minutes = Math.floor((diff % (1000*60*60)) / (1000*60));
     const seconds = Math.floor((diff % (1000*60)) / 1000);
-    document.getElementById("countdown").innerText = `Next key available in: ${minutes}m ${seconds}s`;
+    document.getElementById("countdown").innerText = `Key valid for: ${hours}h ${minutes}m ${seconds}s`;
     setTimeout(updateCountdown, 1000);
 }
 
-// Start countdown on page load
-window.onload = updateCountdown;
+// Countdown beim Laden starten, falls schon Key generiert
+window.onload = function() {
+    if (sessionStorage.getItem('keyGenerated')) {
+        keyTimestamp = localStorage.getItem('lastKeyTime');
+        updateCountdown();
+    }
+};
 </script>
 </body>
 </html>
